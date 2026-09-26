@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { updateCaregiverAdmin, toggleFeatured, deleteCaregiver } from "@/app/actions";
+import { updateCaregiverAdmin, toggleFeatured } from "@/app/actions";
+import { DeleteCaregiverButton } from "@/components/DeleteCaregiverButton";
 import { prisma } from "@/lib/prisma";
 
 export default async function CaregiverEditPage({
@@ -33,22 +34,7 @@ export default async function CaregiverEditPage({
           </form>
 
           {/* Profili sil */}
-          <form
-            action={deleteCaregiver}
-            onSubmit={(e) => {
-              if (!confirm(`${c.firstName} ${c.lastName} profilini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
-                e.preventDefault();
-              }
-            }}
-          >
-            <input type="hidden" name="id" value={c.id} />
-            <button
-              type="submit"
-              className="rounded-full bg-terracotta/10 px-4 py-2 text-sm font-semibold text-terracotta hover:bg-terracotta/20 transition-all"
-            >
-              🗑 Profili Sil
-            </button>
-          </form>
+          <DeleteCaregiverButton id={c.id} name={`${c.firstName} ${c.lastName}`} />
         </div>
       </div>
 
