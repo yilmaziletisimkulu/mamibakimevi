@@ -12,7 +12,6 @@ export function Header({ locale }: { locale: Locale }) {
   const links = [
     [t.nav.home, tPath(locale, "/")],
     [t.nav.caregivers, tPath(locale, "/caregivers")],
-    [t.nav.apply, tPath(locale, "/apply")],
     [t.nav.jobs, tPath(locale, "/jobs")],
     [t.nav.about, tPath(locale, "/about")],
   ] as const;
