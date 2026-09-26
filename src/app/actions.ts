@@ -7,7 +7,6 @@ import { localeFromParam } from "@/lib/i18n";
 import { notifyAdminWhatsApp } from "@/lib/whatsapp";
 import { requireAdmin, createAdminSession, destroyAdminSession } from "@/lib/auth";
 import bcrypt from "bcryptjs";
-import path from "path";
 
 function asList(form: FormData, key: string) {
   return form.getAll(key).map(String).filter(Boolean);
@@ -28,10 +27,10 @@ export async function submitApplication(formData: FormData) {
   let photoPath: string | null = null;
   if (photo instanceof File && photo.size > 0) {
     try {
-      const saved = await saveFile(photo, path.join(PUBLIC_UPLOAD, "photos"), "photo");
-      photoPath = "/" + saved.storedPath.replace(/^public\//, "");
+      const saved = await saveFile(photo, PUBLIC_UPLOAD, "photo");
+      photoPath = saved.storedPath; // Supabase public URL
     } catch {
-      // Netlify'da filesystem yazılamaz, fotoğraf kaydedilemedi — devam et
+      // Fotoğraf yüklenemedi — devam et
     }
   }
 
@@ -62,11 +61,7 @@ export async function submitApplication(formData: FormData) {
   for (const doc of docs) {
     if (doc instanceof File && doc.size > 0) {
       try {
-        const saved = await saveFile(
-          doc,
-          path.join(PRIVATE_UPLOAD, "documents"),
-          caregiver.id,
-        );
+        const saved = await saveFile(doc, PRIVATE_UPLOAD, caregiver.id);
         await prisma.document.create({
           data: {
             caregiverId: caregiver.id,
@@ -76,7 +71,7 @@ export async function submitApplication(formData: FormData) {
           },
         });
       } catch {
-        // Netlify'da filesystem yazılamaz, belge kaydedilemedi — devam et
+        // Belge yüklenemedi — devam et
       }
     }
   }
@@ -247,10 +242,10 @@ export async function updateCaregiverAdmin(formData: FormData) {
   let photoPath: string | undefined = undefined;
   if (photo instanceof File && photo.size > 0) {
     try {
-      const saved = await saveFile(photo, path.join(PUBLIC_UPLOAD, "photos"), "photo");
-      photoPath = "/" + saved.storedPath.replace(/^public\//, "");
+      const saved = await saveFile(photo, PUBLIC_UPLOAD, "photo");
+      photoPath = saved.storedPath; // Supabase public URL
     } catch {
-      // Netlify'da filesystem yazılamaz
+      // Fotoğraf yüklenemedi
     }
   }
 

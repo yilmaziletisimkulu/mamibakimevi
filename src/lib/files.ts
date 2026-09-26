@@ -1,23 +1,40 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { randomBytes } from "crypto";
+import path from "path";
+import { supabaseAdmin } from "./supabase";
 
-export const PUBLIC_UPLOAD = path.join(process.cwd(), "public", "uploads");
-export const PRIVATE_UPLOAD = path.join(process.cwd(), "uploads");
+export const PUBLIC_UPLOAD = "photos";    // Supabase Storage bucket adı
+export const PRIVATE_UPLOAD = "documents"; // Supabase Storage bucket adı
 
 export async function saveFile(
   file: File,
   destDir: string,
   prefix: string,
 ): Promise<{ storedPath: string; originalName: string; mimeType: string }> {
-  await fs.mkdir(destDir, { recursive: true });
   const ext = path.extname(file.name || "").slice(0, 8) || "";
   const name = `${prefix}-${Date.now()}-${randomBytes(4).toString("hex")}${ext}`;
-  const full = path.join(destDir, name);
+
+  // destDir'den bucket adını belirle
+  const bucket = destDir === PUBLIC_UPLOAD || destDir.includes("photos")
+    ? "photos"
+    : "documents";
+
+  const filePath = name;
   const buf = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(full, buf);
+
+  const { error } = await supabaseAdmin.storage
+    .from(bucket)
+    .upload(filePath, buf, {
+      contentType: file.type || "application/octet-stream",
+      upsert: false,
+    });
+
+  if (error) throw new Error(`Supabase Storage upload failed: ${error.message}`);
+
+  // Public URL oluştur (photos bucket public olacak)
+  const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(filePath);
+
   return {
-    storedPath: path.relative(process.cwd(), full).replace(/\\/g, "/"),
+    storedPath: data.publicUrl,
     originalName: file.name,
     mimeType: file.type || "application/octet-stream",
   };
