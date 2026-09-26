@@ -27,8 +27,12 @@ export async function submitApplication(formData: FormData) {
   const photo = formData.get("photo");
   let photoPath: string | null = null;
   if (photo instanceof File && photo.size > 0) {
-    const saved = await saveFile(photo, path.join(PUBLIC_UPLOAD, "photos"), "photo");
-    photoPath = "/" + saved.storedPath.replace(/^public\//, "");
+    try {
+      const saved = await saveFile(photo, path.join(PUBLIC_UPLOAD, "photos"), "photo");
+      photoPath = "/" + saved.storedPath.replace(/^public\//, "");
+    } catch {
+      // Netlify'da filesystem yazılamaz, fotoğraf kaydedilemedi — devam et
+    }
   }
 
   const caregiver = await prisma.caregiver.create({
@@ -57,19 +61,23 @@ export async function submitApplication(formData: FormData) {
   const docs = formData.getAll("documents");
   for (const doc of docs) {
     if (doc instanceof File && doc.size > 0) {
-      const saved = await saveFile(
-        doc,
-        path.join(PRIVATE_UPLOAD, "documents"),
-        caregiver.id,
-      );
-      await prisma.document.create({
-        data: {
-          caregiverId: caregiver.id,
-          originalName: saved.originalName,
-          storedPath: saved.storedPath,
-          mimeType: saved.mimeType,
-        },
-      });
+      try {
+        const saved = await saveFile(
+          doc,
+          path.join(PRIVATE_UPLOAD, "documents"),
+          caregiver.id,
+        );
+        await prisma.document.create({
+          data: {
+            caregiverId: caregiver.id,
+            originalName: saved.originalName,
+            storedPath: saved.storedPath,
+            mimeType: saved.mimeType,
+          },
+        });
+      } catch {
+        // Netlify'da filesystem yazılamaz, belge kaydedilemedi — devam et
+      }
     }
   }
 
@@ -238,8 +246,12 @@ export async function updateCaregiverAdmin(formData: FormData) {
   const photo = formData.get("photo");
   let photoPath: string | undefined = undefined;
   if (photo instanceof File && photo.size > 0) {
-    const saved = await saveFile(photo, path.join(PUBLIC_UPLOAD, "photos"), "photo");
-    photoPath = "/" + saved.storedPath.replace(/^public\//, "");
+    try {
+      const saved = await saveFile(photo, path.join(PUBLIC_UPLOAD, "photos"), "photo");
+      photoPath = "/" + saved.storedPath.replace(/^public\//, "");
+    } catch {
+      // Netlify'da filesystem yazılamaz
+    }
   }
 
   await prisma.caregiver.update({
