@@ -6,7 +6,7 @@ const LINKS = [
   ["Başvurular", "/admin/applications"],
   ["Bakıcılar", "/admin/caregivers"],
   ["İletişim talepleri", "/admin/requests"],
-  ["İş ilanları", "/admin/jobs"],
+  ["Bakıcı Arıyorum", "/admin/jobs"],
   ["Kullanıcılar", "/admin/users"],
   ["Şikayetler", "/admin/complaints"],
   ["Ayarlar", "/admin/settings"],

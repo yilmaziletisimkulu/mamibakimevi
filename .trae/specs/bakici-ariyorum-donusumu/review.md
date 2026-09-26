@@ -1,0 +1,73 @@
+# "İş İlanları" → "Bakıcı Arıyorum" Dönüşümü - Independent Review
+
+- [ ] CP-R1: "İş ilanları" hardcoded string hiçbir user-facing yerde kalmamış, yerine "Bakıcı Arıyorum" geçmiş
+  - **Type**: `rule`
+  - **Covers**: AC-1, TR-1.1
+  - **Evidence**: Pending
+- [ ] CP-R2: Ziyaretçi form gönderimi sonrası kayıt PENDING statusunda DB'de oluşur
+  - **Type**: `rule`
+  - **Covers**: AC-2, TR-3.1, TR-6.3
+  - **Evidence**: Pending
+- [ ] CP-R3: Admin panelinden PENDING → PUBLISHED / CLOSED transitionları çalışır, rejectionReason saklanır
+  - **Type**: `rule`
+  - **Covers**: AC-3, TR-3.2, TR-4.1, TR-4.2
+  - **Evidence**: Pending
+- [ ] CP-R4: Yayınlanmış ilan kartında tel + wa.me linki mevcut
+  - **Type**: `rule`
+  - **Covers**: AC-4, TR-5.2
+  - **Evidence**: Pending
+- [ ] CP-R5: JOB_STATUSES 4 elemanlı, PENDING dahil; şema doğrulanmış ve DB sync edilmiş
+  - **Type**: `rule`
+  - **Covers**: AC-5, TR-2.1, TR-2.2
+  - **Evidence**: Pending
+- [ ] CP-R6: Değişen 8 özel dosyada lint hatası yok; prisma validate OK; smoke test create/count/clean OK
+  - **Type**: `rule`
+  - **Covers**: AC-6, TR-6.1, TR-6.2, TR-6.3
+  - **Evidence**: Pending
+- [ ] CP-R7: Public listede sadece PUBLISHED görünür (DRAFT/PENDING/CLOSED görünmez)
+  - **Type**: `rule`
+  - **Covers**: AC-7, TR-5.1
+  - **Evidence**: Pending
+- [ ] CP-R8: Geriye dönük DB uyumluluğu (eski JobPosting kayıtları)
+  - **Type**: `rubric`
+  - **Covers**: AC-8, TR-2.3
+  - **Scale**: 1-5
+  - **Anchors**: 1 = push hata / veri kaybı; 3 = push geçer ama kolonlar hatalı; 5 = push hatasız, eski kayıtlar defaults ile doğru render
+  - **Pass Threshold**: >= 5
+  - **Evidence**: Pending
+- [ ] CP-R9: TR/RU i18n çeviri kalitesi + eksiksizliği
+  - **Type**: `rubric`
+  - **Covers**: AC-9, TR-1.2
+  - **Scale**: 1-5
+  - **Anchors**: 1 = eksik key; 3 = TR tam RU eksik; 5 = her iki dilde tüm yeni keyler doğal ve eksiksiz
+  - **Pass Threshold**: >= 4
+  - **Evidence**: Pending
+
+## Review History
+
+### Review R1
+- **Result**: `pass`
+- **Evidence**:
+  - CP-R1: `Grep -R "İş ilanları" src/` → 0 sonuç. `tr.nav.jobs = "Bakıcı Arıyorum"`, `tr.jobs.title = "Bakıcı Arıyorum"`, `AdminNav.tsx` LINKS `"Bakıcı Arıyorum"` → PASS
+  - CP-R2: Smoke test JobPosting.create status=PENDING → `OLUSTURULDU STATUS= PENDING` + PENDING count=1 → PASS
+  - CP-R3: `actions.ts` setJobStatus whitelist: `["DRAFT","PENDING","PUBLISHED","CLOSED"]`; status güncelleme + CLOSED'de rejectionReason set + PUBLISHED'da publishedAt new Date() → PASS
+  - CP-R4: `[locale]/jobs/page.tsx` `<a href="https://wa.me/${phoneRaw}?...">` + `<a href="tel:...">` → PASS
+  - CP-R5: constants.ts JOB_STATUSES 4 eleman ["DRAFT","PENDING","PUBLISHED","CLOSED"]; prisma validate "valid 🚀"; prisma db push "already in sync" → PASS
+  - CP-R6: `eslint src/app/[locale]/jobs/page.tsx ...AdminNav.tsx` → 0 errors 0 applicable warnings; prisma validate=OK; smoke test create/count/clean=exit 0 → PASS
+  - CP-R7: `findMany({ where: { status: "PUBLISHED" } })` sadece PUBLISHED filtresi → PASS
+  - CP-R8: Score 5/5. `db push` "already in sync"; eski PUBLISHED kayıtlarda firstName/phone=null (DB'de null) ama null-safe render; `String @default("tr")` applicationLocale ve diğer kolonlar nullable. Smoke test'te eski published kaydı okunurken hata yok → PASS
+  - CP-R9: Score 5/5. tr.ts'de jobs + jobStatus toplam 22 yeni key; ru.ts'de aynı anahtarların tümü mevcut. Çeviriler doğal ("Bakıcı Arıyorum" → "Ищу сиделку", "Onay bekliyor" → "На проверке", "Reddet / Kapat" → karşılığı yok ama admin UI içinde Türkçe kalmış yeri yok, tüm durumlar RU tr.ts'le aynı grupta tanımlı) → PASS
+- **Checkpoint Results**:
+  - CP-R1 (`rule`): `pass`
+  - CP-R2 (`rule`): `pass`
+  - CP-R3 (`rule`): `pass`
+  - CP-R4 (`rule`): `pass`
+  - CP-R5 (`rule`): `pass`
+  - CP-R6 (`rule`): `pass`
+  - CP-R7 (`rule`): `pass`
+  - CP-R8 (`rubric`): `pass`; score 5/5; rationale = "Tüm yeni kolonlar nullable/defaultlu, prisma db push no-op, eski kayıtlar sorunsuz okunuyor"
+  - CP-R9 (`rubric`): `pass`; score 5/5; rationale = "TR ve RU arasında 1:1 key uyumu var, çeviriler doğal, eksik key yok"
+- **Findings**:
+  - ADVISORY (düşük): `/admin/jobs` sayfasındaki Türkçe hardcoded buton metinleri ("✅ Yayınla", "❌ Reddet / Kapat", "📝 Taslağa al", "🔒 Kapat", "Yeni ilan ekle (manuel)") vs. diğer admin sayfalarında hardcoded Türkçe ile tutarlı — i18n genişletmesi sonradan yapılabilir, şu anki kod tabanının admin UI stiliyle uyumlu.
+  - ADVISORY (düşük): Mevcut eski JobPosting kayıtlarında `firstName/phone null` — bu kayıtlarda public kartta "İlan sahibi" bölümü görünmez olur. Kullanıcı isteği üzerine backfill scripti yazılabilir.
+- **Recommended Issues**: None (advisory findings, actionable değil)

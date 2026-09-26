@@ -17,7 +17,7 @@ export const LANGUAGES = ["tr", "ru", "uz", "en", "ar", "fa"] as const;
 export const APPLICATION_STATUSES = ["PENDING", "APPROVED", "REJECTED"] as const;
 export const REQUEST_STATUSES = ["NEW", "IN_PROGRESS", "CONNECTED", "CLOSED"] as const;
 export const COMPLAINT_STATUSES = ["NEW", "REVIEWED", "RESOLVED", "DISMISSED"] as const;
-export const JOB_STATUSES = ["DRAFT", "PUBLISHED", "CLOSED"] as const;
+export const JOB_STATUSES = ["DRAFT", "PENDING", "PUBLISHED", "CLOSED"] as const;
 
 export const CITIES: Record<string, string[]> = {
   İstanbul: [

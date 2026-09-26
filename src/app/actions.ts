@@ -297,20 +297,100 @@ export async function updateComplaintStatus(formData: FormData) {
 export async function saveJob(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") || "");
+  const statusRaw = String(formData.get("status") || "DRAFT");
+  const status = ["DRAFT", "PENDING", "PUBLISHED", "CLOSED"].includes(statusRaw)
+    ? statusRaw
+    : "DRAFT";
   const data = {
     title: String(formData.get("title") || ""),
     city: String(formData.get("city") || ""),
     district: String(formData.get("district") || "") || null,
+    neighbourhood: String(formData.get("neighbourhood") || "") || null,
     careType: String(formData.get("careType") || "") || null,
     workType: String(formData.get("workType") || "") || null,
+    careTypes: formData.has("careTypes")
+      ? JSON.stringify(asList(formData, "careTypes"))
+      : undefined,
+    workTypes: formData.has("workTypes")
+      ? JSON.stringify(asList(formData, "workTypes"))
+      : undefined,
     description: String(formData.get("description") || ""),
-    status: String(formData.get("status") || "DRAFT"),
+    firstName: String(formData.get("firstName") || "") || null,
+    phone: String(formData.get("phone") || "") || null,
+    whatsapp: String(formData.get("whatsapp") || "") || null,
+    email: String(formData.get("email") || "") || null,
+    rejectionReason: String(formData.get("rejectionReason") || "") || null,
+    status,
+    publishedAt: status === "PUBLISHED" ? new Date() : null,
   };
   if (id) {
     await prisma.jobPosting.update({ where: { id }, data });
   } else {
-    await prisma.jobPosting.create({ data });
+    await prisma.jobPosting.create({
+      data: { ...data, applicationLocale: (formData.get("locale") as string | undefined) || "tr" },
+    });
   }
+  redirect("/admin/jobs");
+}
+
+export async function submitJobPosting(formData: FormData) {
+  const locale = localeFromParam(String(formData.get("locale") || "tr"));
+  const title = String(formData.get("title") || "").trim();
+  const city = String(formData.get("city") || "").trim();
+  const firstName = String(formData.get("firstName") || "").trim();
+  const phone = String(formData.get("phone") || "").trim();
+  const description = String(formData.get("description") || "").trim();
+  if (!title || !city || !firstName || !phone || !description) {
+    redirect(`/${locale}/jobs?error=1`);
+  }
+
+  const created = await prisma.jobPosting.create({
+    data: {
+      title,
+      city,
+      district: String(formData.get("district") || "") || null,
+      neighbourhood: String(formData.get("neighbourhood") || "") || null,
+      careTypes: JSON.stringify(asList(formData, "careTypes")),
+      workTypes: JSON.stringify(asList(formData, "workTypes")),
+      description,
+      firstName,
+      phone,
+      whatsapp: String(formData.get("whatsapp") || "") || null,
+      email: String(formData.get("email") || "") || null,
+      status: "PENDING",
+      applicationLocale: locale,
+    },
+  });
+
+  const notice = [
+    "🆕 Mami Bakimevi — yeni bakıcı arayan ilanı",
+    `Başlık: ${created.title}`,
+    `Konum: ${created.city}${created.district ? " / " + created.district : ""}`,
+    `Dil: ${created.applicationLocale.toUpperCase()}`,
+    `İlan No: ${created.id}`,
+    `Gönderen: ${created.firstName} · ${created.phone}`,
+    `İncelemek için: /admin/jobs`,
+  ].join("\n");
+  await notifyAdminWhatsApp(notice);
+
+  redirect(`/${locale}/jobs?ok=1`);
+}
+
+export async function setJobStatus(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const next = String(formData.get("status"));
+  const rejectionReason = String(formData.get("rejectionReason") || "") || null;
+  if (!["DRAFT", "PENDING", "PUBLISHED", "CLOSED"].includes(next)) return;
+
+  await prisma.jobPosting.update({
+    where: { id },
+    data: {
+      status: next,
+      rejectionReason: next === "CLOSED" ? rejectionReason : null,
+      publishedAt: next === "PUBLISHED" ? new Date() : undefined,
+    },
+  });
   redirect("/admin/jobs");
 }
 

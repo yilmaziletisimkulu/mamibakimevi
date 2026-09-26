@@ -101,14 +101,24 @@ model Complaint {
 }
 
 model JobPosting {
-  id          String   @id @default(cuid())
-  title       String
-  city        String
-  district    String?
+  id            String   @id @default(cuid())
+  title         String
+  city          String
+  district      String?
   neighbourhood String?
-  careType    String?
-  workType    String?
-  description String
-  status      String   @default("DRAFT")
-  createdAt   DateTime @default(now())
+  careType      String?
+  workType      String?
+  description   String
+  status        String   @default("DRAFT")
+  createdAt     DateTime @default(now())
+
+  firstName         String?
+  phone             String?
+  whatsapp          String?
+  email             String?
+  careTypes         String?
+  workTypes         String?
+  rejectionReason   String?
+  applicationLocale String  @default("tr")
+  publishedAt       DateTime?
 }
