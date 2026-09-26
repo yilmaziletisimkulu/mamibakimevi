@@ -18,8 +18,9 @@ export async function submitApplication(formData: FormData) {
   const firstName = String(formData.get("firstName") || "").trim();
   const lastName = String(formData.get("lastName") || "").trim();
   const email = String(formData.get("email") || "").trim();
-  const phone = String(formData.get("phone") || "").trim();
-  if (!firstName || !lastName || !email || !phone) {
+  // Telefon formatından rakamları temizle: "0 555 555 55 55" → "05555555555"
+  const phone = String(formData.get("phone") || "").replace(/\s/g, "").trim();
+  if (!firstName || !lastName || !phone) {
     redirect(`/${locale}/apply?error=1`);
   }
 

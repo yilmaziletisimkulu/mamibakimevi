@@ -1,5 +1,6 @@
 import { submitApplication } from "@/app/actions";
 import { CityDistrictFields } from "@/components/CityDistrictFields";
+import { PhoneInput } from "@/components/PhoneInput";
 import { PageBanner } from "@/components/PageBanner";
 import { CARE_TYPES, GENDERS, LANGUAGES, WORK_TYPES } from "@/lib/constants";
 import { localeFromParam, getMessages } from "@/lib/i18n";
@@ -30,19 +31,27 @@ export default async function ApplyPage({
         <div className="grid gap-4 md:grid-cols-2">
           <label className="field">
             {t.apply.firstName}
-            <input className="input" name="firstName" required />
+            <input
+              className="input capitalize"
+              name="firstName"
+              required
+              autoCapitalize="words"
+            />
           </label>
           <label className="field">
             {t.apply.lastName}
-            <input className="input" name="lastName" required />
+            <input
+              className="input capitalize"
+              name="lastName"
+              required
+              autoCapitalize="words"
+            />
           </label>
           <label className="field">
             {t.apply.gender}
             <select className="input" name="gender" required>
               {GENDERS.map((g) => (
-                <option key={g} value={g}>
-                  {t.gender[g]}
-                </option>
+                <option key={g} value={g}>{t.gender[g]}</option>
               ))}
             </select>
           </label>
@@ -50,18 +59,23 @@ export default async function ApplyPage({
             {t.apply.birthYear}
             <input className="input" name="birthYear" type="number" min={1940} max={2010} />
           </label>
-          <CityDistrictFields cityLabel={t.apply.city} districtLabel={t.apply.district} neighbourhoodLabel={t.apply.neighbourhood} />
+          <CityDistrictFields
+            cityLabel={t.apply.city}
+            districtLabel={t.apply.district}
+            neighbourhoodLabel={t.apply.neighbourhood}
+          />
           <label className="field">
             {t.apply.phone}
-            <input className="input" name="phone" required />
+            <PhoneInput name="phone" required placeholder="0 555 555 55 55" />
           </label>
           <label className="field">
             {t.apply.whatsapp}
-            <input className="input" name="whatsapp" />
+            <PhoneInput name="whatsapp" placeholder="0 555 555 55 55" />
           </label>
           <label className="field md:col-span-2">
             {t.apply.email}
-            <input className="input" name="email" type="email" required />
+            <span className="ml-1 text-xs font-normal text-muted">(isteğe bağlı)</span>
+            <input className="input" name="email" type="email" />
           </label>
         </div>
         <fieldset>
@@ -103,7 +117,12 @@ export default async function ApplyPage({
         </label>
         <label className="field">
           {t.apply.bio}
-          <textarea className="input min-h-32" name="bio" required />
+          <textarea
+            className="input min-h-32 capitalize"
+            name="bio"
+            required
+            autoCapitalize="sentences"
+          />
         </label>
         <label className="field">
           {t.apply.photo}
@@ -113,7 +132,7 @@ export default async function ApplyPage({
           {t.apply.documents}
           <input className="input" name="documents" type="file" multiple />
         </label>
-        <button className="btn-primary" type="submit">
+        <button className="btn-primary w-full" type="submit">
           {t.apply.submit}
         </button>
       </form>
