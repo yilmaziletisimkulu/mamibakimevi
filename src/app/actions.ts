@@ -194,7 +194,7 @@ export async function toggleFeatured(formData: FormData) {
     where: { id },
     data: { featured: !current.featured },
   });
-  redirect(`/admin/caregivers/${id}`);
+  redirect("/admin/caregivers");
 }
 
 export async function deleteCaregiver(formData: FormData) {
