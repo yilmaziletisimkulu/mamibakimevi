@@ -243,9 +243,9 @@ export default async function JobsPage({
                         href={`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(adminWaText)}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-sm"
+                        className="btn-primary"
                       >
-                        💬 {t.jobs.applyCta}
+                        {t.jobs.applyCta}
                       </a>
                     </div>
                   </footer>
