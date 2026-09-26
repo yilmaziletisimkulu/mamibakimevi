@@ -243,7 +243,7 @@ export default async function JobsPage({
                         href={`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(adminWaText)}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                        className="btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-sm"
                       >
                         💬 {t.jobs.applyCta}
                       </a>
