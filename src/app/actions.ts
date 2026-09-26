@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { saveFile, PUBLIC_UPLOAD, PRIVATE_UPLOAD } from "@/lib/files";
+import { saveFile, PUBLIC_UPLOAD, PRIVATE_UPLOAD, sentenceCase } from "@/lib/files";
 import { localeFromParam } from "@/lib/i18n";
 import { notifyAdminWhatsApp } from "@/lib/whatsapp";
 import { requireAdmin, createAdminSession, destroyAdminSession } from "@/lib/auth";
@@ -22,7 +22,6 @@ export async function submitApplication(formData: FormData) {
   if (!firstName || !lastName || !phone) {
     redirect(`/${locale}/apply?error=1`);
   }
-
   const photo = formData.get("photo");
   let photoPath: string | null = null;
   if (photo instanceof File && photo.size > 0) {
@@ -50,7 +49,7 @@ export async function submitApplication(formData: FormData) {
       careTypes: JSON.stringify(asList(formData, "careTypes")),
       workTypes: JSON.stringify(asList(formData, "workTypes")),
       experienceYears: Number(formData.get("experienceYears") || 0),
-      bio: String(formData.get("bio") || ""),
+      bio: sentenceCase(String(formData.get("bio") || "")),
       photoPath,
       status: "PENDING",
       applicationLocale: locale,
@@ -85,7 +84,11 @@ export async function submitApplication(formData: FormData) {
     `Başvuru No: ${caregiver.id}`,
     `İncelemek için: /admin/applications/${caregiver.id}`,
   ].join("\n");
-  await notifyAdminWhatsApp(notice);
+  try {
+    await notifyAdminWhatsApp(notice);
+  } catch {
+    // Bildirim gönderilemezse başvuruyu yine de kaydet
+  }
 
   redirect(`/${locale}/apply/success`);
 }
@@ -259,7 +262,7 @@ export async function updateCaregiverAdmin(formData: FormData) {
       phone: String(formData.get("phone") || ""),
       whatsapp: String(formData.get("whatsapp") || "") || null,
       email: String(formData.get("email") || ""),
-      bio: String(formData.get("bio") || ""),
+      bio: sentenceCase(String(formData.get("bio") || "")),
       adminNotes: String(formData.get("adminNotes") || "") || null,
       experienceYears: Number(formData.get("experienceYears") || 0),
       ...(photoPath ? { photoPath } : {}),
@@ -338,7 +341,8 @@ export async function submitJobPosting(formData: FormData) {
   const title = String(formData.get("title") || "").trim();
   const city = String(formData.get("city") || "").trim();
   const firstName = String(formData.get("firstName") || "").trim();
-  const phone = String(formData.get("phone") || "").trim();
+  // PhoneInput'tan gelen "0 555 555 55 55" formatını temizle
+  const phone = String(formData.get("phone") || "").replace(/\s/g, "").trim();
   const description = String(formData.get("description") || "").trim();
   if (!title || !city || !firstName || !phone || !description) {
     redirect(`/${locale}/jobs?error=1`);
@@ -371,7 +375,11 @@ export async function submitJobPosting(formData: FormData) {
     `Gönderen: ${created.firstName} · ${created.phone}`,
     `İncelemek için: /admin/jobs`,
   ].join("\n");
-  await notifyAdminWhatsApp(notice);
+  try {
+    await notifyAdminWhatsApp(notice);
+  } catch {
+    // Bildirim gönderilemezse ilanı yine de kaydet
+  }
 
   redirect(`/${locale}/jobs?ok=1`);
 }

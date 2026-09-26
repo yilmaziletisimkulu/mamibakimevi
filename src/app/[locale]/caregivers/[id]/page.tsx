@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { parseList, ageFromYear } from "@/lib/files";
+import { parseList, ageFromYear, sentenceCase } from "@/lib/files";
 import { localeFromParam, getMessages } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
 
@@ -80,7 +80,7 @@ export default async function CaregiverProfilePage({
           <p className="mt-2">
             {caregiver.experienceYears} {t.search.years}
           </p>
-          <p className="mt-4 whitespace-pre-wrap text-muted">{caregiver.bio}</p>
+          <p className="mt-4 whitespace-pre-wrap text-muted first-letter:text-2xl first-letter:font-serif first-letter:font-semibold first-letter:text-teal">{sentenceCase(caregiver.bio)}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="card p-5">

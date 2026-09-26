@@ -2,6 +2,7 @@ import { localeFromParam, getMessages } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
 import { PageBanner } from "@/components/PageBanner";
 import { CityDistrictFields } from "@/components/CityDistrictFields";
+import { PhoneInput } from "@/components/PhoneInput";
 import { submitJobPosting } from "@/app/actions";
 import { CARE_TYPES, WORK_TYPES } from "@/lib/constants";
 
@@ -44,6 +45,8 @@ export default async function JobsPage({
   const locale = localeFromParam((await params).locale);
   const t = getMessages(locale);
   const sp = await searchParams;
+
+  const ADMIN_WHATSAPP = "905556874803";
 
   let jobs: Awaited<ReturnType<typeof prisma.jobPosting.findMany>> = [];
   try {
@@ -136,18 +139,15 @@ export default async function JobsPage({
 
           <label className="field">
             {t.jobs.ownerName}
-            <input className="input" name="firstName" required placeholder={locale === "ru" ? "Фамилия Имя" : "Ad Soyad"} />
+            <input className="input capitalize" name="firstName" required autoCapitalize="words" placeholder={locale === "ru" ? "Фамилия Имя" : "Ad Soyad"} />
           </label>
           <label className="field">
             {t.jobs.phone}
-            <input className="input" name="phone" type="tel" required placeholder="+90 ..." />
+            <PhoneInput name="phone" required placeholder="0 555 555 55 55" />
           </label>
-          <label className="field">
-            {t.jobs.whatsapp}
-            <input className="input" name="whatsapp" type="tel" placeholder="+90 ..." />
-          </label>
-          <label className="field">
+          <label className="field md:col-span-2">
             {t.jobs.email}
+            <span className="ml-1 text-xs font-normal text-muted">(isteğe bağlı)</span>
             <input className="input" name="email" type="email" />
           </label>
 
@@ -190,14 +190,17 @@ export default async function JobsPage({
             {jobs.map((job) => {
               const cts = parseList(job.careTypes, CARE_TYPES);
               const wts = parseList(job.workTypes, WORK_TYPES);
-              const phoneRaw = (job.whatsapp || job.phone || "").replace(/\D/g, "");
+              const jobCity = job.city + (job.district ? ` / ${job.district}` : "") + (job.neighbourhood ? ` / ${job.neighbourhood}` : "");
+              const adminWaText = locale === "ru"
+                ? `Здравствуйте! Я сиделка и заинтересовалась объявлением на Mami Bakimevi.\n\n📋 Объявление: ${job.title}\n📍 Город: ${jobCity}\n👤 Отправитель: ${job.firstName || "—"}\n\nХочу узнать детали и уточнить, подходит ли мне эта работа. Мои контакты ниже.`
+                : `Merhaba! Mami Bakimevi'deki ilanla ilgilenen bakıcıyım.\n\n📋 İlan: ${job.title}\n📍 Şehir: ${jobCity}\n👤 İlan sahibi: ${job.firstName || "—"}\n\nDetayları öğrenmek ve kendimi tanıtmak istiyorum. Kendi iletişim bilgilerimi iletmeme yardımcı olun.`;
               return (
                 <article key={job.id} className="card p-6">
                   <header className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <h3 className="font-serif text-2xl">{job.title}</h3>
                       <p className="mt-1 text-sm text-muted">
-                        {job.city}{job.district ? ` / ${job.district}` : ""}{job.neighbourhood ? ` / ${job.neighbourhood}` : ""}
+                        {jobCity}
                         {job.publishedAt ? ` · ${new Date(job.publishedAt).toLocaleDateString(locale === "ru" ? "ru-RU" : "tr-TR")}` : job.createdAt ? ` · ${new Date(job.createdAt).toLocaleDateString(locale === "ru" ? "ru-RU" : "tr-TR")}` : ""}
                       </p>
                     </div>
@@ -231,30 +234,19 @@ export default async function JobsPage({
                         {t.jobs.postedBy}
                       </p>
                       {job.firstName && <p className="font-semibold">{job.firstName}</p>}
+                      <p className="mt-1 text-xs text-muted">
+                        {t.jobs.privateContact}
+                      </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {job.phone && (
-                        <a
-                          href={`tel:${job.phone.replace(/\D/g, "")}`}
-                          className="rounded-full bg-teal px-4 py-2 text-sm font-semibold text-white hover:bg-teal-dark"
-                        >
-                          📞 {t.jobs.phoneCta}
-                        </a>
-                      )}
-                      {phoneRaw && (
-                        <a
-                          href={`https://wa.me/${phoneRaw}?text=${encodeURIComponent(
-                            locale === "ru"
-                              ? `Здравствуйте! Увидел(а) ваше объявление «${job.title}» на Mami Bakimevi. Хочу уточнить детали.`
-                              : `Merhaba! Mami Bakimevi'de "${job.title}" ilanınızı gördüm. Detayları öğrenmek istiyorum.`
-                          )}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-                        >
-                          💬 {t.jobs.whatsappCta}
-                        </a>
-                      )}
+                      <a
+                        href={`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(adminWaText)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                      >
+                        💬 {t.jobs.applyCta}
+                      </a>
                     </div>
                   </footer>
                 </article>

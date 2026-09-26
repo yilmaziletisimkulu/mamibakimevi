@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { setApplicationStatus } from "@/app/actions";
-import { parseList } from "@/lib/files";
+import { parseList, sentenceCase } from "@/lib/files";
 import { prisma } from "@/lib/prisma";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -65,7 +65,7 @@ export default async function ApplicationDetail({
         <p><b>Bakım türleri:</b> {parseList(c.careTypes).join(", ")}</p>
         <p><b>Çalışma tercihi:</b> {parseList(c.workTypes).join(", ")}</p>
         <p><b>Deneyim:</b> {c.experienceYears} yıl</p>
-        <p className="whitespace-pre-wrap pt-2 border-t border-ink/10">{c.bio}</p>
+        <p className="whitespace-pre-wrap pt-2 border-t border-ink/10 first-letter:text-lg first-letter:font-serif first-letter:font-semibold">{sentenceCase(c.bio)}</p>
       </div>
 
       <div className="card p-6">

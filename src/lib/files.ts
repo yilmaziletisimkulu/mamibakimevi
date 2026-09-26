@@ -55,3 +55,10 @@ export function ageFromYear(year?: number | null) {
   if (!year) return null;
   return new Date().getFullYear() - year;
 }
+
+export function sentenceCase(text: string | null | undefined): string {
+  if (!text) return "";
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+  return trimmed[0].toLocaleUpperCase("tr-TR") + trimmed.slice(1);
+}

@@ -22,7 +22,13 @@ function statusBadge(status: string) {
 }
 
 export default async function JobsAdminPage() {
-  const all = await prisma.jobPosting.findMany({ orderBy: { createdAt: "desc" } });
+  let all: Awaited<ReturnType<typeof prisma.jobPosting.findMany>> = [];
+  let dbError: string | null = null;
+  try {
+    all = await prisma.jobPosting.findMany({ orderBy: { createdAt: "desc" } });
+  } catch (err) {
+    dbError = err instanceof Error ? err.message : "Veritabanı hatası";
+  }
   const pending = all.filter((j) => j.status === "PENDING");
   const published = all.filter((j) => j.status === "PUBLISHED");
   const closed = all.filter((j) => j.status === "CLOSED");
@@ -30,6 +36,13 @@ export default async function JobsAdminPage() {
 
   return (
     <div className="space-y-10">
+      {dbError && (
+        <div className="card border border-terracotta/30 bg-terracotta/5 p-5">
+          <p className="font-semibold text-terracotta">⚠ Veritabanı hatası</p>
+          <p className="mt-1 text-sm text-muted">{dbError}</p>
+        </div>
+      )}
+
       {/* Bekleyen onaylar */}
       <section>
         <div className="flex items-end justify-between gap-3">

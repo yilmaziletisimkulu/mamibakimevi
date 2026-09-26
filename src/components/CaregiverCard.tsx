@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { parseList } from "@/lib/files";
+import { parseList, sentenceCase } from "@/lib/files";
 import { getMessages, tPath } from "@/lib/i18n";
 import type { Locale } from "@/lib/constants";
 import type { Caregiver } from "@prisma/client";
@@ -55,7 +55,7 @@ export function CaregiverCard({
             </span>
           ))}
         </p>
-        <p className="line-clamp-2 text-xs text-muted">{caregiver.bio}</p>
+        <p className="line-clamp-2 text-xs text-muted first-letter:font-semibold first-letter:text-teal-dark">{sentenceCase(caregiver.bio)}</p>
         <div className="flex flex-wrap gap-1 text-[11px] text-teal-dark">
           {cares.map((c) => (
             <span key={c}>{t.care[c as keyof typeof t.care] || c}</span>
