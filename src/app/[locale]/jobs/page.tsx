@@ -55,10 +55,10 @@ export default async function JobsPage({
     // DB bağlantısı yoksa boş liste ile devam et
   }
 
-  const careLabels = locale === "ru"
+  const careLabels: Record<string, string> = locale === "ru"
     ? { ELDERLY: "Уход за пожилыми", PATIENT: "Уход за больными", ALZHEIMER: "Альцгеймер", DISABILITY: "Уход при инвалидности", POST_OP: "После операции", PALLIATIVE: "Паллиатив" }
     : { ELDERLY: "Yaşlı bakımı", PATIENT: "Hasta bakımı", ALZHEIMER: "Alzheimer / demans", DISABILITY: "Engelli bakımı", POST_OP: "Ameliyat sonrası", PALLIATIVE: "Palyatif bakım" };
-  const workLabels = locale === "ru"
+  const workLabels: Record<string, string> = locale === "ru"
     ? { LIVE_IN: "С проживанием", DAYTIME: "Дневной", HOURLY: "Почасовой", FLEXIBLE: "Гибкий" }
     : { LIVE_IN: "Yatılı", DAYTIME: "Gündüzlü", HOURLY: "Saatlik", FLEXIBLE: "Esnek" };
 
@@ -109,7 +109,7 @@ export default async function JobsPage({
           <input type="hidden" name="locale" value={locale} />
 
           <label className="field md:col-span-2">
-            {t.jobs.title}
+            {t.jobs.postTitle}
             <input className="input" name="title" required placeholder={locale === "ru" ? "Например: Кону ищет сиделку для пожилой мамы" : "Örn: Kulu'da anneme bakıcı arıyorum"} />
           </label>
 

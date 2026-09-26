@@ -139,7 +139,7 @@ const tr = {
     neighbourhood: "Mahalle / belde (isteğe bağlı)",
     careTypes: "Aradığınız bakım türleri",
     workTypes: "Çalışma tercihi",
-    title: "İlan başlığı",
+    postTitle: "İlan başlığı",
     description: "İlan açıklaması",
     submit: "İlanımı gönder (onaya gönder)",
     successTitle: "İlanınız alındı, teşekkürler!",

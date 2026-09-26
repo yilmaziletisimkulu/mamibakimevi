@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 import path from "path";
-import { supabaseAdmin } from "./supabase";
+import { getSupabaseAdmin } from "./supabase";
 
 export const PUBLIC_UPLOAD = "photos";    // Supabase Storage bucket adı
 export const PRIVATE_UPLOAD = "documents"; // Supabase Storage bucket adı
@@ -21,6 +21,7 @@ export async function saveFile(
   const filePath = name;
   const buf = Buffer.from(await file.arrayBuffer());
 
+  const supabaseAdmin = getSupabaseAdmin();
   const { error } = await supabaseAdmin.storage
     .from(bucket)
     .upload(filePath, buf, {
@@ -31,7 +32,7 @@ export async function saveFile(
   if (error) throw new Error(`Supabase Storage upload failed: ${error.message}`);
 
   // Public URL oluştur (photos bucket public olacak)
-  const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(filePath);
+  const { data } = getSupabaseAdmin().storage.from(bucket).getPublicUrl(filePath);
 
   return {
     storedPath: data.publicUrl,

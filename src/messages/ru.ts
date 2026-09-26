@@ -141,7 +141,7 @@ const ru: Messages = {
     neighbourhood: "Квартал / село (необязательно)",
     careTypes: "Тип ухода, который нужен",
     workTypes: "Формат работы",
-    title: "Заголовок объявления",
+    postTitle: "Заголовок объявления",
     description: "Описание",
     submit: "Отправить на проверку",
     successTitle: "Объявление принято, спасибо!",
