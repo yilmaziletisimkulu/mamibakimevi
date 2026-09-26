@@ -29,13 +29,13 @@ export default async function RequestDetail({
         <p className="whitespace-pre-wrap">{r.message}</p>
         <hr />
         <p>
-          <b>Bakıcı:</b> {r.caregiver.firstName} {r.caregiver.lastName}
+          <b>Bakıcı:</b> {r.caregiver?.firstName} {r.caregiver?.lastName}
         </p>
         <p>
-          <b>Bakıcı telefon:</b> {r.caregiver.phone}
+          <b>Bakıcı telefon:</b> {r.caregiver?.phone}
         </p>
         <p>
-          <b>Bakıcı WhatsApp:</b> {r.caregiver.whatsapp || "—"}
+          <b>Bakıcı WhatsApp:</b> {r.caregiver?.whatsapp || "—"}
         </p>
       </div>
       <form action={updateRequestStatus} className="card space-y-3 p-6">
