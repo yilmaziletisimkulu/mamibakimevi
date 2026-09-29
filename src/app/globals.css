@@ -100,7 +100,7 @@ label.field {
   height: 100%;
   object-fit: cover;
   transform: scale(1.08);
-  animation: splash-zoom 6.5s ease-out forwards;
+  animation: splash-zoom 5s ease-out forwards;
 }
 .splash-veil {
   position: absolute;

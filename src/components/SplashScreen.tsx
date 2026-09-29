@@ -20,7 +20,7 @@ export function SplashScreen({ locale }: { locale: Locale }) {
       /* ignore */
     }
 
-    const fade = window.setTimeout(() => setPhase("out"), 5350);
+    const fade = window.setTimeout(() => setPhase("out"), 3850);
     const hide = window.setTimeout(() => {
       setPhase("gone");
       try {
@@ -28,7 +28,7 @@ export function SplashScreen({ locale }: { locale: Locale }) {
       } catch {
         /* ignore */
       }
-    }, 6000);
+    }, 4500);
 
     return () => {
       window.clearTimeout(fade);
