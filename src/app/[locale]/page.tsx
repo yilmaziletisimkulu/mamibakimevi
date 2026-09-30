@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { CaregiverCard } from "@/components/CaregiverCard";
 import { localeFromParam, getMessages, tPath } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
@@ -38,14 +38,7 @@ export default async function HomePage({
     <div>
       <section className="relative overflow-hidden">
         <div className="relative min-h-[420px] md:min-h-[520px]">
-          <Image
-            src="/images/hero-care.jpg"
-            alt={t.home.heroImageAlt}
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
-          />
+          <HeroSlideshow alt={t.home.heroImageAlt} />
           <div className="absolute inset-0 bg-teal-dark/60" />
           <div className="relative z-10 mx-auto flex min-h-[420px] max-w-6xl flex-col justify-end px-4 py-16 md:min-h-[520px]">
             <p className="text-sm font-semibold tracking-wide text-gold">{t.brand}</p>
