@@ -7,49 +7,52 @@ const IMAGES = [
   "https://plus.unsplash.com/premium_photo-1663036976879-4baf18adfd5b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 ];
 
-const INTERVAL = 5000;
+const INTERVAL = 6000;   // resimler arası bekleme (ms)
+const FADE_DURATION = 1500; // geçiş süresi (ms)
 
 export function HeroSlideshow({ alt }: { alt: string }) {
   const [current, setCurrent] = useState(0);
-  const [prev, setPrev] = useState<number | null>(null);
+  const [next, setNext] = useState<number | null>(null);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const next = (current + 1) % IMAGES.length;
-      setPrev(current);
-      setCurrent(next);
+      const nextIdx = (current + 1) % IMAGES.length;
+      setNext(nextIdx);
       setFading(true);
+
       setTimeout(() => {
-        setPrev(null);
+        setCurrent(nextIdx);
+        setNext(null);
         setFading(false);
-      }, 900);
+      }, FADE_DURATION);
     }, INTERVAL);
+
     return () => clearInterval(timer);
   }, [current]);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {prev !== null && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={`prev-${prev}`}
-          src={IMAGES[prev]}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      )}
+      {/* Alttaki mevcut resim */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        key={`cur-${current}`}
         src={IMAGES[current]}
         alt={alt}
         className="absolute inset-0 h-full w-full object-cover"
-        style={{
-          opacity: fading ? 0 : 1,
-          transition: fading ? "none" : "opacity 0.9s ease-in-out",
-        }}
       />
+      {/* Üstteki yeni resim — fade in */}
+      {next !== null && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={IMAGES[next]}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{
+            opacity: fading ? 1 : 0,
+            transition: `opacity ${FADE_DURATION}ms ease-in-out`,
+          }}
+        />
+      )}
     </div>
   );
 }
