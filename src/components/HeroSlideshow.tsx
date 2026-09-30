@@ -11,58 +11,37 @@ const INTERVAL = 6000;
 const FADE_DURATION = 1500;
 
 export function HeroSlideshow({ alt }: { alt: string }) {
-  const [current, setCurrent] = useState(0);
-  const [nextIdx, setNextIdx] = useState<number | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [key, setKey] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const n = (current + 1) % IMAGES.length;
-
-      // 1. yeni resmi opacity:0 ile DOM'a ekle
-      setNextIdx(n);
-      setVisible(false);
-
-      // 2. bir tick bekle, sonra opacity:1'e geç (transition tetiklenir)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setVisible(true);
-        });
-      });
-
-      // 3. geçiş bitince current'ı güncelle, next'i kaldır
-      setTimeout(() => {
-        setCurrent(n);
-        setNextIdx(null);
-        setVisible(false);
-      }, FADE_DURATION + 50);
+      setIndex((i) => (i + 1) % IMAGES.length);
+      setKey((k) => k + 1);
     }, INTERVAL);
-
     return () => clearInterval(timer);
-  }, [current]);
+  }, []);
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* Alttaki mevcut resim */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={IMAGES[current]}
-        alt={alt}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      {/* Üstteki yeni resim — fade in */}
-      {nextIdx !== null && (
-        // eslint-disable-next-line @next/next/no-img-element
+    <>
+      <style>{`
+        @keyframes heroFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        .hero-slide {
+          animation: heroFadeIn ${FADE_DURATION}ms ease-in-out forwards;
+        }
+      `}</style>
+      <div className="absolute inset-0 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={IMAGES[nextIdx]}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: `opacity ${FADE_DURATION}ms ease-in-out`,
-          }}
+          key={key}
+          src={IMAGES[index]}
+          alt={alt}
+          className="hero-slide absolute inset-0 h-full w-full object-cover"
         />
-      )}
-    </div>
+      </div>
+    </>
   );
 }
